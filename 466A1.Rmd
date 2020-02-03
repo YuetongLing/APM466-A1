@@ -1,0 +1,241 @@
+---
+title: "A1modified"
+author: "Yuetong Ling"
+date: "01/02/2020"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+Bond_prices <- read.csv("C:/Users/lingy/OneDrive/UofT/APM/APM466/List of bond prices.csv")
+Coupon <- c(1.5, 0.75, 0.75, 0.75, 0.5, 2.75, 1.75, 1.5, 2.25, 1.5)
+Maturity <- c('2020-03-01', '2020-09-01', '2021-03-01', '2021-09-01', '2022-03-01', '2022-06-01', '2023-03-01', '2023-06-01', '2024-03-01', '2024-09-01')
+par = 100
+```
+```{r}
+Prices <- Bond_prices[2: 11]
+Prices[1]
+bond1ytm <- c()
+for (i in 1:10){
+  r <- (-6)*log((Prices[[1]][i]+1.5/3)/(par+1.5/2))
+  bond1ytm[i] <- r
+}
+Prices[1] <- bond1ytm
+
+bond2ytm <- c()
+for (i in 1:10){
+  r <- (-3/2)*log((Prices[[2]][i]+0.25-0.75/2*exp((-1/6)*Prices[[1]][i]))/(0.75/2+par))
+  bond2ytm[i] <- r
+}
+Prices[2] <- bond2ytm
+
+middle_value <- function(N, Priceofbonds, iteration){
+  prev <- 0
+  for (i in 1:(N-1)){
+    r <- as.numeric(Priceofbonds[[i]][iteration])
+    prev <- prev + exp(r*(-1)*(1/6+(i-1)/2))
+  }
+  prev
+}
+
+bond3ytm <- c()
+for (j in 1:10){
+  middle <- middle_value(3, Prices, j)
+  middle <- as.numeric(Prices[[3]][j])+0.25-middle*0.75/2
+  r <- (-6/7)*log(middle/(0.75/2+par))
+  bond3ytm[j] <- r
+}
+Prices[3] <- bond3ytm
+
+bond4ytm <- c()
+for (j in 1:10){
+  middle <- middle_value(4, Prices, j)
+  middle <- as.numeric(Prices[[4]][j])+0.25-middle*0.75/2
+  r <- (-3/5)*log(middle/(0.75/2+par))
+  bond4ytm[j] <- r
+}
+Prices[4] <- bond4ytm
+
+bond5ytm <- c()
+for (j in 1:10){
+  middle <- middle_value(5, Prices, j)
+  middle <- as.numeric(Prices[[5]][j])+0.5/3-middle*0.5/2
+  r <- (-6/13)*log(middle/(0.5/2+par))
+  bond5ytm[j] <- r
+}
+Prices[5] <- bond5ytm
+
+bond6ytm <- c()
+for (j in 1:10){
+  middle <- middle_value(6, Prices, j)
+  middle <- as.numeric(Prices[[6]][j])+2.75/3-middle*2.75/2
+  r <- (-3/8)*log(middle/(2.75/2+par))
+  bond6ytm[j] <- r
+}
+Prices[6] <- bond6ytm + 0.001
+
+bond7ytm <- c()
+for (j in 1:10){
+  middle <- middle_value(7, Prices, j)
+  middle <- as.numeric(Prices[[7]][j])+1.75/3-middle*1.75/2
+  r <- (-6/19)*log(middle/(1.75/2+par))
+  bond7ytm[j] <- r
+}
+Prices[7] <- bond7ytm
+
+bond8ytm <- c()
+for (j in 1:10){
+  middle <- middle_value(8, Prices, j)
+  middle <- as.numeric(Prices[[8]][j])+1.5/3-middle*1.5/2
+  r <- (-3/11)*log(middle/(1.5/2+par))
+  bond8ytm[j] <- r
+}
+Prices[8] <- bond8ytm
+
+bond9ytm <- c()
+for (j in 1:10){
+  middle <- middle_value(9, Prices, j)
+  middle <- as.numeric(Prices[[9]][j])+2.25/3-middle*2.25/2
+  r <- (-6/25)*log(middle/(2.25/2+par))
+  bond9ytm[j] <- r
+}
+Prices[9] <- bond9ytm
+
+bond10ytm <- c()
+for (j in 1:10){
+  middle <- middle_value(10, Prices, j)
+  middle <- as.numeric(Prices[[10]][j])+1.5/3-middle*1.5/2
+  r <- (-3/14)*log(middle/(1.5/2+par))
+  bond10ytm[j] <- r
+}
+Prices[10] <- bond10ytm
+Prices
+```
+```{r}
+Settlement <- as.Date(Bond_prices[,1])
+Interval = c(0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5)
+color_list = sample(colors(), length(Settlement))
+yield <- as.matrix(Prices)
+for (i in 1:length(Settlement)){
+  if (i == 1){
+    subset1 <- as.vector(yield[i, 1:10])
+    plot(Interval, subset1, xlim = c(0, 6), ylim = c(0.015, 0.025), type = 'l', xlab = 'Maturity(Years)', ylab = 'Yield', col = color_list[i])
+  }
+  else{
+    par(new = TRUE)
+    subset1 <- as.vector(yield[i, 1:10])
+    plot(Interval, subset1, axes = FALSE, xlim = c(0, 6), ylim = c(0.015, 0.025), type = 'l', xlab = 'Maturity(Years)', ylab = 'Yield', col = color_list[i])
+  }
+}
+
+legend('topright', legend = c('02-Jan', '03-Jan', '06-Jan', '07-Jan', '08-Jan', '09-Jan', '10-Jan', '13-Jan', '14-Jan', '15-Jan'), col = color_list, pch = 16, cex = 0.75)
+title('Yield Curve')
+```
+```{r}
+Spot <- read.csv("C:/Users/lingy/OneDrive/UofT/APM/APM466/Spot rates.csv")
+Spot
+```
+```{r}
+Settlement <- as.Date(Bond_prices[,1])
+Interval = c(0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5)
+color_list = sample(colors(), length(Settlement))
+yield <- as.matrix(Spot)
+for (i in 1:length(Settlement)){
+  if (i == 1){
+    subset1 <- as.vector(yield[i, 1:10])
+    plot(Interval, subset1, xlim = c(0, 6), ylim = c(0.012, 0.028), type = 'l', xlab = 'Maturity(Years)', ylab = 'Spot rate', col = color_list[i])
+  }
+  else{
+    par(new = TRUE)
+    subset1 <- as.vector(yield[i, 1:10])
+    plot(Interval, subset1, axes = FALSE, xlim = c(0, 6), ylim = c(0.012, 0.028), type = 'l', xlab = 'Maturity(Years)', ylab = 'Spot rate', col = color_list[i])
+  }
+}
+
+legend('topright', legend = c('02-Jan', '03-Jan', '06-Jan', '07-Jan', '08-Jan', '09-Jan', '10-Jan', '13-Jan', '14-Jan', '15-Jan'), col = color_list, pch = 16, cex = 0.75)
+title('Spot Curve')
+```
+```{r}
+Spot_rate <- as.matrix(Spot)
+for (i in 1:10){
+  for (j in 1:10){
+    Price <- par/(1+Spot_rate[j, i])^(1/6+(i-1)/2)
+    Spot_rate[j, i] <- Price
+  }
+}
+logprice <- log(Spot_rate)
+logprice
+Logprice <- as.matrix(logprice)
+forward_rate <- Logprice
+for (i in 1:10){
+  for(j in 1:10){
+    middle_value <- (Logprice[i, j] - Logprice[i, 2])
+    ratio <- 1/6+(j-2)/2
+    forward <- (-1)*middle_value/ratio
+    forward_rate[i,j] <- forward
+  }
+}
+
+forward_rate
+```
+```{r}
+Settlement <- as.Date(Bond_prices[,1])
+Interval = c(0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5)
+color_list = sample(colors(), length(Settlement))
+forward_curve <- as.matrix(forward_rate)
+for (i in 1:length(Settlement)){
+  if (i == 1){
+    subset1 <- as.vector(forward_curve[i, 1:10])
+    plot(Interval, subset1, xlim = c(0, 6), ylim = c(0, 0.03), type = 'l', xlab = 'Maturity(Years)', ylab = 'forward rate', col = color_list[i])
+  }
+  else{
+    par(new = TRUE)
+    subset1 <- as.vector(forward_curve[i, 1:10])
+    plot(Interval, subset1, axes = FALSE, xlim = c(0, 6), ylim = c(0, 0.03), type = 'l', xlab = 'Maturity(Years)', ylab = 'forward rate', col = color_list[i])
+  }
+}
+
+legend('topright', legend = c('02-Jan', '03-Jan', '06-Jan', '07-Jan', '08-Jan', '09-Jan', '10-Jan', '13-Jan', '14-Jan', '15-Jan'), col = color_list, pch = 16, cex = 0.75)
+title('forward Curve')
+```
+```{r}
+forwardcovariance <- forward_rate
+for (i in 1:5){
+  for (j in 1:9){
+    FWCOV <- log(forward_rate[i, j+1]/forward_rate[i, j])
+    forwardcovariance[i, j] <- FWCOV
+  }
+}
+forwardcovariance
+Covmatrix <- forwardcovariance[6: 10, 1: 9]
+Covmatrix
+
+Covtranspose <- t(Covmatrix)
+
+forwardCov <- Covmatrix %*% Covtranspose
+forwardCov
+```
+```{r}
+yield_rate <- Prices
+ytmCovariance <- yield_rate
+for (i in 1:5){
+  for (j in 1:9){
+    YTMCOV <- log(yield_rate[i, j+1]/yield_rate[i, j])
+    ytmCovariance[i, j] <- YTMCOV
+  }
+}
+ytmCovariance
+
+ytmmatrix <- ytmCovariance[6: 10, 1: 9]
+ytmCovMatrix <- as.matrix(ytmmatrix)
+ytmtranspose <- t(ytmCovMatrix)
+ytmtrans <- as.matrix(ytmtranspose)
+ytmCov <- ytmCovMatrix %*% ytmtrans
+ytmCov
+```
+```{r}
+ytmeigen <- eigen(ytmCov)
+forwardeigen <- eigen(forwardCov)
+```
